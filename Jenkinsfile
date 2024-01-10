@@ -7,7 +7,7 @@ pipeline {
     }
 */
     environment {
-        registry = "sabarisathish08/vprofileapp"
+        registry = "https://hub.docker.com/repository/docker/sabarisathish08/vprofileapp"
         registryCredential = "dockerhub"
     }
 
@@ -74,7 +74,7 @@ pipeline {
 
         stage('Build app image'){
           steps{
-            scripts{
+            script {
               dockerImage = docker.build registry + "latest"
             }
           }
@@ -82,8 +82,8 @@ pipeline {
 
         stage('upload image'){
           steps{
-            scripts{
-              docker.withRegistry('',registryCredential){
+            script {
+              docker.withRegistry(url:'',credentialsID: registryCredential){
                 dockerImage.push('latest')
               }
             }
@@ -99,7 +99,7 @@ pipeline {
         stage('kubernetes deploy'){
           agent{label 'KOPS'}
             steps{
-              sh "helm upgrade --install --force vprofilestack helm/vprofilecharts --set appimage=$registry:latest --namespcae prod"
+              sh "helm upgrade --install --force vprofilestack helm/vprofilecharts --set appimage=$registry:latest --namespace prod"
             }
         }
 
